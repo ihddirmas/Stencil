@@ -407,11 +407,35 @@ def stage_recommend_exercise(
 
 # --- Demo mode ----------------------------------------------------------------
 
+def _snippet_quotes(raw_text: str, fallbacks: list[str], limit: int = 3) -> list[str]:
+    """Pull short lines from user text for demo annotations; fall back if sparse."""
+    lines = [ln.strip(" -\t") for ln in raw_text.splitlines() if ln.strip()]
+    # Prefer substantive lines over day labels
+    candidates = [ln for ln in lines if len(ln) > 12 and not ln.lower().startswith(("mon", "tue", "wed", "thu", "fri", "sat", "sun"))]
+    # Also split on sentence-ish punctuation inside longer lines
+    expanded: list[str] = []
+    for ln in candidates:
+        parts = [p.strip() for p in ln.replace("—", ".").split(".") if len(p.strip()) > 12]
+        expanded.extend(parts or [ln])
+    quotes = expanded[:limit]
+    while len(quotes) < limit:
+        quotes.append(fallbacks[len(quotes) % len(fallbacks)])
+    return [q[:140] for q in quotes]
+
+
 def _demo_pipeline(raw_text: str) -> dict:
     """Deterministic sample so UI can be demoed without an API key."""
     lower = raw_text.lower()
     use_triangle = any(w in lower for w in ("critic", "hypocrit", "avoid", "triangle"))
     if use_triangle:
+        quotes = _snippet_quotes(
+            raw_text,
+            [
+                "I keep putting it off",
+                "I'm being lazy",
+                "I should already be further along",
+            ],
+        )
         framework = FrameworkResult(
             framework_type="triangle",
             labels={
@@ -422,21 +446,29 @@ def _demo_pipeline(raw_text: str) -> dict:
             position={"vertex_a": 0.45, "vertex_b": 0.35, "vertex_c": 0.20},
             annotations=[
                 {
-                    "quote": "I keep putting it off",
+                    "quote": quotes[0],
                     "note": "Pulls toward Avoid — delay as protection.",
                 },
                 {
-                    "quote": "I'm being lazy",
+                    "quote": quotes[1],
                     "note": "Inner Criticize voice naming the delay as a moral failure.",
                 },
                 {
-                    "quote": "I should already be further along",
+                    "quote": quotes[2],
                     "note": "Perform / Prove pressure underneath the criticism.",
                 },
             ],
             source_citation=TRIANGLE_FRAMEWORK["source_citation"],
         )
     else:
+        quotes = _snippet_quotes(
+            raw_text,
+            [
+                "I keep rewriting the same paragraph",
+                "What if it's not good enough",
+                "Maybe I'll send it tomorrow",
+            ],
+        )
         framework = FrameworkResult(
             framework_type="quadrant",
             labels={
@@ -452,15 +484,15 @@ def _demo_pipeline(raw_text: str) -> dict:
             position={"x": 0.32, "y": 0.68},
             annotations=[
                 {
-                    "quote": "I keep rewriting the same paragraph",
+                    "quote": quotes[0],
                     "note": "High stakes + avoid — polishing as delay.",
                 },
                 {
-                    "quote": "What if it's not good enough",
+                    "quote": quotes[1],
                     "note": "Stakes feel personal; approach feels costly.",
                 },
                 {
-                    "quote": "Maybe I'll send it tomorrow",
+                    "quote": quotes[2],
                     "note": "Soft deferral — still in the freeze region.",
                 },
             ],
