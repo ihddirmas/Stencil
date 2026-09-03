@@ -17,7 +17,7 @@ export function SiteHeader({
           <p className="font-[family-name:var(--font-display)] text-lg font-bold leading-none text-[var(--leaf-deep)]">
             Stencil
           </p>
-          <p className="text-xs text-[var(--ink-soft)]">Your words, mapped</p>
+          <p className="text-xs text-[var(--ink-soft)]">Agent · your words mapped</p>
         </div>
       </Link>
 

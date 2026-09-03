@@ -16,15 +16,15 @@ export default async function LandingPage() {
       <main className="mx-auto max-w-6xl px-5 pb-20 pt-8">
         <section className="animate-rise mx-auto max-w-3xl">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-[var(--leaf)]">
-            Journaling templates that evolve
+            A journaling agent with tools
           </p>
           <h1 className="text-5xl font-bold tracking-tight text-[var(--leaf-deep)] sm:text-6xl">
             Stencil
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-[var(--ink-soft)]">
-            AI journaling leaves you with unsearchable markdown. Stencil turns your diary
-            entries into evidence-based visual frameworks and editable worksheets — annotated
-            with your own words, saved to a growing library and memory profile.
+            Chat with an agent that turns diary entries into evidence-based visual frameworks —
+            then remembers patterns, searches your history, and grows a memory profile. Not another
+            wall of AI markdown.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -45,16 +45,16 @@ export default async function LandingPage() {
         <section className="animate-rise mt-16 grid gap-6 sm:grid-cols-3">
           {[
             {
-              t: "Paste",
-              d: "Drop real diary entries — no mood scores, no 1–5 ratings.",
+              t: "Chat",
+              d: "Talk to the agent — paste diary text, ask what it remembers, or search past entries.",
             },
             {
               t: "Stencil",
-              d: "Matched to a cited framework: quadrant maps, identity worksheets, CBT distortions, forgiveness prompts.",
+              d: "It calls tools to match a cited framework: quadrant maps, identity worksheets, CBT distortions, forgiveness prompts.",
             },
             {
               t: "Remember",
-              d: "Entries and stencils persist. Your memory profile evolves as patterns recur.",
+              d: "Entries, stencils, and memory notes persist. The agent reads your profile on later turns.",
             },
           ].map((card) => (
             <div
