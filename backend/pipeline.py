@@ -409,13 +409,22 @@ def stage_recommend_exercise(
 
 def _snippet_quotes(raw_text: str, fallbacks: list[str], limit: int = 3) -> list[str]:
     """Pull short lines from user text for demo annotations; fall back if sparse."""
+    import re
+
     lines = [ln.strip(" -\t") for ln in raw_text.splitlines() if ln.strip()]
-    # Prefer substantive lines over day labels
-    candidates = [ln for ln in lines if len(ln) > 12 and not ln.lower().startswith(("mon", "tue", "wed", "thu", "fri", "sat", "sun"))]
-    # Also split on sentence-ish punctuation inside longer lines
+    cleaned: list[str] = []
+    for ln in lines:
+        ln = re.sub(
+            r"^(mon|tue|tues|wed|thu|thur|fri|sat|sun)[a-z]*\s*[—\-:]\s*",
+            "",
+            ln,
+            flags=re.IGNORECASE,
+        ).strip()
+        if len(ln) > 12:
+            cleaned.append(ln)
     expanded: list[str] = []
-    for ln in candidates:
-        parts = [p.strip() for p in ln.replace("—", ".").split(".") if len(p.strip()) > 12]
+    for ln in cleaned:
+        parts = [p.strip() for p in re.split(r"[.?!—]", ln) if len(p.strip()) > 12]
         expanded.extend(parts or [ln])
     quotes = expanded[:limit]
     while len(quotes) < limit:
