@@ -99,7 +99,7 @@ body {
 .brand-name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.65rem;
+  font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -108,7 +108,16 @@ body {
 .brand-tag {
   margin: 0.15rem 0 0;
   color: var(--ink-soft);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+}
+
+.eyebrow {
+  margin: 0.35rem 0 0.4rem;
+  color: var(--leaf);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .shell {
@@ -123,11 +132,12 @@ body {
 
 .compose h1 {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 2.85rem);
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin: 0.5rem 0 0.75rem;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  margin: 0 0 0.85rem;
+  color: var(--leaf-deep);
 }
 
 .lede {
@@ -176,7 +186,7 @@ textarea#journal:focus {
   font-weight: 700;
   font-size: 1rem;
   padding: 0.85rem 1.6rem;
-  border-radius: 999px;
+  border-radius: 12px;
   cursor: pointer;
   transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s;
   box-shadow: 0 10px 24px rgba(30, 74, 54, 0.22);
@@ -430,12 +440,8 @@ textarea#journal:focus {
 }
 
 @media (max-width: 640px) {
-  .brand-name {
-    font-size: 1.35rem;
-  }
-
   .compose h1 {
-    font-size: 1.85rem;
+    font-size: 2.15rem;
   }
 
   .diagram {
