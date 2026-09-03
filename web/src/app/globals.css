@@ -1,0 +1,52 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #1a2a24;
+  --ink-soft: #3d5248;
+  --mist: #e8f0eb;
+  --paper: #f7faf7;
+  --leaf: #2f6b4f;
+  --leaf-deep: #1e4a36;
+  --sand: #f3ebe0;
+  --accent: #c45c26;
+  --line: rgba(26, 42, 36, 0.14);
+  --danger: #8b2e2e;
+  --danger-bg: #f8ecec;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Manrope", "Segoe UI", sans-serif;
+}
+
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #d9ebe0 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #efe6d8 0%, transparent 50%),
+    linear-gradient(180deg, #f4f8f5 0%, var(--paper) 45%, #eef4f0 100%);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.65s ease both;
+}

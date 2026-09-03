@@ -1,99 +1,78 @@
 # Stencil
 
-Paste diary entries → Stencil matches them to an evidence-based journaling **template** (framework diagram or worksheet), annotated with your own words, editable, and accumulating over time — instead of another unsearchable folder of AI-generated `.md` analysis.
+Paste diary entries → Stencil matches them to an evidence-based journaling **template**, annotated with your own words, saved to your library, and accumulated into an evolving **memory profile**.
 
-Reading long psychological analysis is boring. A diagram or bite-sized stencil sticks.
+Not a mood tracker. Psychoeducational only.
 
-This is **not a mood tracker**.
+## Product flow
 
-## The demo moment
+1. **Landing** (`/`) — brand + pitch + Get started / Log in  
+2. **Auth** (`/signup`, `/login`) — Supabase email/password  
+3. **Journal** (`/journal`) — paste → analyze → save entry + stencil + memory notes  
+4. **Entries** (`/entries`) — searchable history of diary text + applied templates  
+5. **Memory** (`/memory`) — living profile (patterns, roles, distortions, quadrant landings)
 
-Paste 2–4 journal entries → see them applied to a customized framework visual (e.g. Consciousness × Agency quadrant) **or** an editable worksheet (identity shift, self-forgiveness, CBT distortions) → keep adding entries; the library evolves.
+Crisis language still short-circuits to resources only (no template saved).
 
-## Template library (v1)
+## Monorepo layout
 
-| Template | Shape | Citation lineage |
-|---|---|---|
-| Consciousness × Agency | 2×2 quadrant map | Peter Limberg / Less Foolish |
-| Who I Had to Be vs Who I'm Becoming | Two-column identity worksheet | Identity / parts-informed journaling |
-| Forgiving Yourself | 5-prompt compassion worksheet | Self-compassion / CBT self-blame work |
-| Cognitive Distortions | Spot + challenge rows | CBT (Beck; Burns) |
-| Triangle map | 3-vertex conflict | Reflective self-inquiry |
-
-Reference visuals live in `docs/references/`.
-
-## Architecture
-
-```
-raw diary text
-       │
-       ▼
- crisis check ──yes──► resources only (no template)
-       │ no
-       ▼
-┌─────────────┐
-│ 1 Extractor │  → claims + verbatim quotes
-└──────┬──────┘
-       ▼
-┌──────────────────┐
-│ 2 Template Match │  → which stencil + labels
-└──────┬───────────┘
-       ▼
-┌──────────────────┐
-│ 3 Position/Fill  │  → plot + prefilled worksheet fields
-└──────┬───────────┘
-       ▼
-┌──────────────────┐
-│ 4 Exercise pack  │  → editable HTML/JS stencil
-└──────────────────┘
-```
-
-## UI (Lovable) + API (this repo)
-
-- **Primary UI:** Lovable React app — editor + live preview (see links below / in PR)
-- **API:** FastAPI in `backend/` — `POST /api/analyze`, crisis short-circuit, Claude tool-use pipeline, `DEMO_MODE` fallback
-- Session stencil library persists in the browser (`localStorage`); server does **not** store raw entries
-
-## Safety & Responsible AI
-
-| Guardrail | Behavior |
+| Path | Role |
 |---|---|
-| System prompt scope | Psychoeducational only — never diagnostic / clinical advice |
-| Crisis short-circuit | Runs **before** the pipeline; no diagram/worksheet if flagged |
-| Ephemeral processing | No persistent server-side storage of raw entries |
-| Cited frameworks | Sources shown in-app; templates are pre-selected, not invented pop psych |
-| Disclaimer | Always visible banner |
+| `web/` | Next.js 15 App Router UI (landing, auth, journal, entries, memory) |
+| `backend/` | FastAPI 4-stage Claude / demo analyze API |
+| `frontend/` | Legacy vanilla SPA (smoke / fallback) |
+| `supabase/migrations/` | Schema reference |
+| `docs/references/` | Framework visual references |
 
-Crisis resource links include a TODO for verified region-appropriate hotlines before public demo.
+## Supabase
 
-## How to run the API locally
+Project: **stencil** (`babzsbnsxhtgjafhvndw`, us-east-1)
+
+Tables (RLS on): `profiles`, `entries`, `stencils`, `memory_notes`  
+Signup trigger creates a `profiles` row.
+
+**Auth tip for local demos:** In Supabase Dashboard → Authentication → Providers → Email, turn off “Confirm email” so signup returns a session immediately. Or confirm users via Dashboard / SQL (`email_confirmed_at`).
+
+## Run locally
+
+### 1) Analyze API
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r backend/requirements.txt
-cp backend/.env.example backend/.env
-# ANTHROPIC_API_KEY=...  or  DEMO_MODE=1
-
-uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+DEMO_MODE=1 uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
-Legacy vanilla frontend in `frontend/` is still served at `/` for smoke tests; Lovable is the product UI.
+### 2) Web app
 
-## Deploy
+```bash
+cd web
+cp .env.example .env.local
+# fill NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY
+# NEXT_PUBLIC_ANALYZE_API_URL=http://127.0.0.1:8000
+npm install
+npm run dev
+```
 
-`render.yaml` + `Procfile` for the FastAPI service. Set `ANTHROPIC_API_KEY` in the Render dashboard.
+Open [http://localhost:3000](http://localhost:3000).
+
+## Safety
+
+- Persistent disclaimer banner  
+- Crisis short-circuit before templates  
+- RLS: users only read/write their own rows  
+- Framework citations shown in-app  
+- Analyze API does not store raw entries; persistence is user-owned in Supabase
+
+## Deploy notes
+
+- **API:** Render (`render.yaml`) — set `ANTHROPIC_API_KEY`  
+- **Web:** Vercel/Netlify — set Supabase + `NEXT_PUBLIC_ANALYZE_API_URL` to the Render URL  
+- Add the web origin to API CORS if locked down
 
 ## Lovable
 
-- Editor / preview URLs are recorded when the Lovable project is created (see PR description).
-- Project knowledge encodes product constraints (safety, templates, design).
-
-## What's next / out of scope
-
-- Auth / multi-user accounts
-- Persistent server-side history
-- Unlimited open-ended framework invention
-- Native mobile
+Earlier Lovable UI work is paused (workspace out of credits). Primary product UI is now `web/`.
 
 ## License
 
