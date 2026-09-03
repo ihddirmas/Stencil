@@ -21,9 +21,12 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 app = FastAPI(
-    title="Pattern Mirror",
-    description="Map journal entries onto evidence-based reflective frameworks.",
-    version="0.1.0",
+    title="Stencil",
+    description=(
+        "Convert diary entries into evolving, editable evidence-based journaling "
+        "templates — framework visuals annotated with the user's own words."
+    ),
+    version="0.2.0",
 )
 
 app.add_middleware(
