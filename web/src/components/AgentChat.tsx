@@ -219,6 +219,9 @@ export function AgentChat({ demoMode }: { demoMode?: boolean }) {
                               </p>
                             );
                           }
+                          return null;
+                        })}
+                        {message.parts.map((part, i) => {
                           if (
                             isToolUIPart(part) &&
                             part.state === "output-available" &&
