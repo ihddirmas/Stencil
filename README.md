@@ -54,10 +54,26 @@ See [`workflows/README.md`](workflows/README.md). Root task: `orchestrate_stenci
 
 ## Deploy
 
+### Vercel (Next.js in `web/`)
+
+This is a monorepo. The Next app lives in **`web/`** — Vercel must use that as the Root Directory or the build finishes in ~20ms with no output.
+
+1. Vercel Project → **Settings → General → Root Directory** → set to `web` → Save  
+2. Framework Preset: **Next.js**  
+3. Install Command: `npm install` (default)  
+4. Build Command: `npm run build` (default)  
+5. Env vars:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_ANALYZE_API_URL=https://stencil-api.onrender.com`
+   - optional `ANTHROPIC_API_KEY`
+6. Redeploy
+
+If Root Directory is left blank, you get: *Build output contains no "functions" or "static" directory*.
+
 - **API (Render web service):** https://stencil-api.onrender.com  
-- **Web (Vercel):** root `web/` — set Supabase env + `NEXT_PUBLIC_ANALYZE_API_URL=https://stencil-api.onrender.com`  
-- **Workflows:** create Workflow service from `workflows/` (Dashboard; not yet in Blueprints)  
-- Add Vercel URL to Supabase Auth redirect URLs (`/auth/callback`)
+- **Workflows:** create Workflow service from `workflows/` (Dashboard; see `workflows/README.md`)  
+- Add the Vercel URL to Supabase Auth redirect URLs (`/auth/callback`)
 
 ## License
 
