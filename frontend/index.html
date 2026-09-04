@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pattern Mirror — see the structure in your own words</title>
+  <meta name="description" content="Paste journal entries. Pattern Mirror maps them onto an evidence-based reflective framework, annotated with your own words." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="disclaimer" role="note">
+    This is a psychoeducational reflection tool, not a diagnostic or therapeutic service.
+  </div>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-name">Pattern Mirror</p>
+        <p class="brand-tag">Your words, mapped — not another wall of AI text.</p>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="shell">
+    <section class="compose" aria-labelledby="compose-heading">
+      <p class="eyebrow">Reflective mapping</p>
+      <h1 id="compose-heading">Pattern Mirror</h1>
+      <p class="lede">
+        Paste what you wrote. We extract patterns from your entries, match them to a cited
+        framework, plot them on a diagram annotated with your own quotes, and return one editable exercise.
+      </p>
+
+      <label class="sr-only" for="journal">Journal entries</label>
+      <textarea
+        id="journal"
+        name="journal"
+        rows="12"
+        placeholder="Paste 2–4 journal entries here…
+
+Example:
+Mon — I keep rewriting the same paragraph. What if it's not good enough? Maybe I'll send it tomorrow.
+
+Wed — Avoided the conversation again. Told myself I was being thoughtful. Felt like cowardice later.
+
+Fri — Criticized myself for not shipping, then overprepared for a meeting that didn't need it."
+      ></textarea>
+
+      <div class="actions">
+        <button type="button" id="analyze-btn" class="btn-primary">
+          Analyze
+        </button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section id="crisis-panel" class="crisis-panel" hidden aria-live="assertive">
+      <h2>We paused the analysis</h2>
+      <p id="crisis-message"></p>
+      <ul id="crisis-resources"></ul>
+      <p class="crisis-note">
+        Pattern Mirror will not generate a framework diagram when crisis-related language is detected.
+      </p>
+    </section>
+
+    <section id="result-panel" class="result-panel" hidden>
+      <div class="diagram-header">
+        <h2 id="framework-title">Your pattern map</h2>
+        <p id="citation" class="citation"></p>
+      </div>
+      <div id="diagram" class="diagram" role="img" aria-label="Framework diagram of your journal patterns"></div>
+      <div id="annotations" class="annotations"></div>
+
+      <div class="exercise-block">
+        <h2 id="exercise-title">Recommended exercise</h2>
+        <p id="exercise-rationale" class="rationale"></p>
+        <div id="exercise-form" class="exercise-form"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Ephemeral processing — entries are not stored on the server.</p>
+    <p>Frameworks are pre-selected templates with cited sources, not model-invented pop psychology.</p>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
