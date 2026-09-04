@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Disclaimer } from "@/components/SiteChrome";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Stencil — evidence-based journaling agent for mental health",
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body className="antialiased">
         <Disclaimer />
         {children}
+        <Analytics />
       </body>
     </html>
   );
