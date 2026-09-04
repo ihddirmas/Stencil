@@ -1,0 +1,17 @@
+{
+  "name": "Stencil",
+  "install": "./.cursor/scripts/cloud-agent-install.sh",
+  "ports": [
+    {
+      "name": "Stencil dev server",
+      "port": 3333
+    }
+  ],
+  "terminals": [
+    {
+      "name": "dev-server",
+      "command": "npm start",
+      "description": "Stencil development server with hot reload on port 3333"
+    }
+  ]
+}
