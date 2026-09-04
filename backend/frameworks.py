@@ -1,4 +1,4 @@
-"""Framework templates and validation schemas for Pattern Mirror."""
+"""Stencil framework templates and validation schemas."""
 
 from __future__ import annotations
 
@@ -7,67 +7,113 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
+FrameworkType = Literal[
+    "quadrant",
+    "triangle",
+    "identity_shift",
+    "forgiveness",
+    "cognitive_distortions",
+]
+
+
+# --- Shape templates (labels filled per-request) -------------------------------
+
 QUADRANT_FRAMEWORK: dict[str, Any] = {
     "type": "quadrant",
-    "description": (
-        "A 2-axis, 4-quadrant map. Axis labels and quadrant names are generated "
-        "per-request from the user's patterns; the shape is fixed."
-    ),
-    "axes": {
-        "x": {"low": None, "high": None},
-        "y": {"low": None, "high": None},
+    "description": "2-axis / 4-quadrant map. Labels generated per-request.",
+    "default_labels": {
+        "x_low": "Low Agency",
+        "x_high": "High Agency",
+        "y_low": "Low Consciousness",
+        "y_high": "High Consciousness",
+        "top_left": "Spiritual Bypassers",
+        "top_right": "Agentic Sages",
+        "bottom_left": "NPCs",
+        "bottom_right": "Agentic Fools",
     },
-    "quadrants": {
-        "top_left": None,
-        "top_right": None,
-        "bottom_left": None,
-        "bottom_right": None,
-    },
-    "position": {"x": 0.5, "y": 0.5},
     "source_citation": (
-        "Adapted from CBT thought-record / cognitive mapping structures "
-        "(Beck; Greenberger & Padesky)"
+        "Adapted from Peter Limberg / Less Foolish — Consciousness × Agency "
+        "(https://lessfoolish.substack.com/p/how-to-win-friends-and-get-things)"
     ),
 }
 
-
 TRIANGLE_FRAMEWORK: dict[str, Any] = {
     "type": "triangle",
-    "description": (
-        "A 3-vertex self-inquiry map. Vertex labels are generated per-request; "
-        "position is expressed as weights toward each vertex summing to 1.0."
-    ),
-    "vertices": {
-        "vertex_a": None,
-        "vertex_b": None,
-        "vertex_c": None,
-    },
-    "position": {"vertex_a": 0.34, "vertex_b": 0.33, "vertex_c": 0.33},
+    "description": "3-vertex self-inquiry map.",
     "source_citation": (
         "Adapted from triangular conflict / self-inquiry mapping patterns "
         "used in reflective practice and cognitive-behavioral self-observation"
     ),
 }
 
+IDENTITY_SHIFT_FRAMEWORK: dict[str, Any] = {
+    "type": "identity_shift",
+    "description": "Who I Had to Be vs Who I'm Becoming worksheet.",
+    "source_citation": (
+        "Adapted from identity-reconstruction / parts-work reflective journaling "
+        "(roles developed for safety → chosen identity)"
+    ),
+}
+
+FORGIVENESS_FRAMEWORK: dict[str, Any] = {
+    "type": "forgiveness",
+    "description": "Self-forgiveness guided worksheet (5 prompts).",
+    "source_citation": (
+        "Adapted from self-compassion and self-forgiveness journaling practices "
+        "(Neff-informed compassion; CBT self-blame work)"
+    ),
+}
+
+COGNITIVE_DISTORTIONS_FRAMEWORK: dict[str, Any] = {
+    "type": "cognitive_distortions",
+    "description": "CBT cognitive-distortions spotting + challenge worksheet.",
+    "source_citation": (
+        "Adapted from CBT cognitive distortions / thought records (Beck; Burns)"
+    ),
+    "catalog": [
+        {
+            "id": "all_or_nothing",
+            "name": "All-or-Nothing Thinking",
+            "description": "Viewing things in black-and-white terms, no middle ground.",
+            "example": "If I don't do it perfectly, I've failed.",
+            "challenge": "Doing something is better than nothing. Progress counts.",
+        },
+        {
+            "id": "catastrophizing",
+            "name": "Catastrophizing",
+            "description": "Expecting the worst-case scenario.",
+            "example": "If this goes wrong, everything falls apart.",
+            "challenge": "There might be discomfort, but I can handle it.",
+        },
+        {
+            "id": "mind_reading",
+            "name": "Mind Reading",
+            "description": "Assuming you know what others are thinking.",
+            "example": "They think I'm incompetent.",
+            "challenge": "I don't have evidence of that. I'll check the facts.",
+        },
+        {
+            "id": "should_statements",
+            "name": "Should Statements",
+            "description": "Holding yourself to rigid rules.",
+            "example": "I should be more productive.",
+            "challenge": "I'd like to get more done, but rest is also important.",
+        },
+    ],
+}
+
 
 class Annotation(BaseModel):
-    quote: str = Field(..., min_length=1, description="Verbatim words from the user's entry")
-    note: str = Field(..., min_length=1, description="Why this quote lands where it does")
+    quote: str = Field(..., min_length=1)
+    note: str = Field(..., min_length=1)
 
 
 class FrameworkResult(BaseModel):
+    """Unified result for diagram-style frameworks (quadrant / triangle)."""
+
     framework_type: Literal["quadrant", "triangle"]
-    labels: dict[str, str] = Field(
-        ...,
-        description=(
-            "For quadrant: x_low, x_high, y_low, y_high, top_left, top_right, "
-            "bottom_left, bottom_right. For triangle: vertex_a, vertex_b, vertex_c."
-        ),
-    )
-    position: dict[str, float] = Field(
-        ...,
-        description="For quadrant: {x, y} in 0–1. For triangle: vertex weights summing to 1.0.",
-    )
+    labels: dict[str, str]
+    position: dict[str, float]
     annotations: list[Annotation] = Field(default_factory=list, min_length=1)
     source_citation: str
 
@@ -94,9 +140,10 @@ class FrameworkResult(BaseModel):
                 raise ValueError(f"Quadrant labels missing: {sorted(missing)}")
             if "x" not in self.position or "y" not in self.position:
                 raise ValueError("Quadrant position requires x and y")
-            x = max(0.0, min(1.0, self.position["x"]))
-            y = max(0.0, min(1.0, self.position["y"]))
-            self.position = {"x": x, "y": y}
+            self.position = {
+                "x": max(0.0, min(1.0, self.position["x"])),
+                "y": max(0.0, min(1.0, self.position["y"])),
+            }
         else:
             required_labels = {"vertex_a", "vertex_b", "vertex_c"}
             missing = required_labels - set(self.labels)
@@ -110,7 +157,8 @@ class FrameworkResult(BaseModel):
             if total <= 0:
                 raise ValueError("Triangle weights must sum to a positive value")
             self.position = {
-                k: max(0.0, self.position[k]) / total for k in ("vertex_a", "vertex_b", "vertex_c")
+                k: max(0.0, self.position[k]) / total
+                for k in ("vertex_a", "vertex_b", "vertex_c")
             }
         return self
 
@@ -120,12 +168,23 @@ class ExerciseRecommendation(BaseModel):
     html_template: str
     rationale: str
     exercise_id: str | None = None
+    template_type: str | None = None
+    fields: dict[str, Any] = Field(default_factory=dict)
 
 
-class AnalyzeSuccess(BaseModel):
+class StencilResult(BaseModel):
+    """Full Stencil response: which template + visual data + editable worksheet."""
+
     crisis_flag: Literal[False] = False
-    framework: FrameworkResult
-    exercise: ExerciseRecommendation
+    template_type: FrameworkType
+    title: str
+    source_citation: str
+    annotations: list[Annotation] = Field(default_factory=list)
+    # Diagram payloads (optional depending on type)
+    framework: FrameworkResult | None = None
+    # Worksheet payload — freeform structured fields the UI binds to
+    worksheet: dict[str, Any] = Field(default_factory=dict)
+    exercise: ExerciseRecommendation | None = None
     claims: list[dict[str, str]] = Field(default_factory=list)
 
 
@@ -136,3 +195,7 @@ class CrisisResponse(BaseModel):
         "We paused the pattern analysis. If you are in distress, please reach out "
         "to someone you trust or a crisis resource below."
     )
+
+
+# Back-compat alias used by older pipeline code
+AnalyzeSuccess = StencilResult

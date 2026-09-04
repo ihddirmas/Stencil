@@ -1,93 +1,99 @@
-# Pattern Mirror
+# Stencil
 
-Paste your journal entries → an AI pipeline maps them onto an evidence-based psychological framework as an editable visual diagram, annotated with your own words, plus one tailored journaling exercise — instead of another wall of AI-generated markdown you'll never search again.
+Paste diary entries → Stencil matches them to an evidence-based journaling **template** (framework diagram or worksheet), annotated with your own words, editable, and accumulating over time — instead of another unsearchable folder of AI-generated `.md` analysis.
+
+Reading long psychological analysis is boring. A diagram or bite-sized stencil sticks.
+
+This is **not a mood tracker**.
 
 ## The demo moment
 
-Paste 3–4 real journal entries → within seconds see them plotted on a personalized **quadrant** or **triangle** diagram, annotated with your own phrases → get one tailored, editable journaling exercise below it. That's the product.
+Paste 2–4 journal entries → see them applied to a customized framework visual (e.g. Consciousness × Agency quadrant) **or** an editable worksheet (identity shift, self-forgiveness, CBT distortions) → keep adding entries; the library evolves.
 
-This is **not a mood tracker**. It does not ask you to rate your day 1–5. It maps relationships between patterns in what you already wrote through an established framework template.
+## Template library (v1)
+
+| Template | Shape | Citation lineage |
+|---|---|---|
+| Consciousness × Agency | 2×2 quadrant map | Peter Limberg / Less Foolish |
+| Who I Had to Be vs Who I'm Becoming | Two-column identity worksheet | Identity / parts-informed journaling |
+| Forgiving Yourself | 5-prompt compassion worksheet | Self-compassion / CBT self-blame work |
+| Cognitive Distortions | Spot + challenge rows | CBT (Beck; Burns) |
+| Triangle map | 3-vertex conflict | Reflective self-inquiry |
+
+Reference visuals live in `docs/references/`.
 
 ## Architecture
 
-A 4-stage structured Claude pipeline (tool-use / schema-validated — not one freeform prompt):
-
 ```
-raw journal text
+raw diary text
        │
        ▼
+ crisis check ──yes──► resources only (no template)
+       │ no
+       ▼
 ┌─────────────┐
-│ 1 Extractor │  → 3–6 claims + verbatim quotes
+│ 1 Extractor │  → claims + verbatim quotes
 └──────┬──────┘
        ▼
 ┌──────────────────┐
-│ 2 Framework Match│  → quadrant XOR triangle + generated labels
+│ 2 Template Match │  → which stencil + labels
 └──────┬───────────┘
        ▼
 ┌──────────────────┐
-│ 3 Position Gen   │  → x/y or vertex weights + quote annotations
+│ 3 Position/Fill  │  → plot + prefilled worksheet fields
 └──────┬───────────┘
        ▼
 ┌──────────────────┐
-│ 4 Exercise Rec.  │  → one pre-written exercise, pre-filled
+│ 4 Exercise pack  │  → editable HTML/JS stencil
 └──────────────────┘
 ```
 
-Exactly **two** framework templates (the AI fills labels, not invents geometry):
+## UI (Lovable) + API (this repo)
 
-1. **Quadrant** — 2-axis / 4-region map (CBT thought-record / cognitive mapping lineage)
-2. **Triangle** — 3-vertex self-inquiry map (reflective multi-perspective practice)
+- **Primary UI:** Lovable React app — editor + live preview (see links below / in PR)
+- **API:** FastAPI in `backend/` — `POST /api/analyze`, crisis short-circuit, Claude tool-use pipeline, `DEMO_MODE` fallback
+- Session stencil library persists in the browser (`localStorage`); server does **not** store raw entries
 
 ## Safety & Responsible AI
 
-Judges: this section is load-bearing for the Responsible AI framing.
-
 | Guardrail | Behavior |
 |---|---|
-| **System prompt scope** | Psychoeducational only — never diagnostic, never clinical/medical advice, never claims certainty about mental state |
-| **Crisis-language short-circuit** | Lightweight check runs **before** the pipeline. If flagged, the framework stages never run; the UI shows resources only (no diagram, no exercise) |
-| **Ephemeral processing** | No persistent server-side storage of raw entries — request in, response out |
-| **Cited frameworks** | Templates cite established sources (e.g. CBT thought-record structures). Sources are shown in-app near the diagram |
-| **Visible disclaimer** | Banner: *This is a psychoeducational reflection tool, not a diagnostic or therapeutic service.* |
+| System prompt scope | Psychoeducational only — never diagnostic / clinical advice |
+| Crisis short-circuit | Runs **before** the pipeline; no diagram/worksheet if flagged |
+| Ephemeral processing | No persistent server-side storage of raw entries |
+| Cited frameworks | Sources shown in-app; templates are pre-selected, not invented pop psych |
+| Disclaimer | Always visible banner |
 
-Crisis resource links include a **TODO** placeholder for verified, region-appropriate hotlines — fill these before a public demo; do not invent numbers.
+Crisis resource links include a TODO for verified region-appropriate hotlines before public demo.
 
-## How to run locally
+## How to run the API locally
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
 pip install -r backend/requirements.txt
 cp backend/.env.example backend/.env
-# Set ANTHROPIC_API_KEY=... in backend/.env
-# Or set DEMO_MODE=1 for a deterministic sample without calling Claude
+# ANTHROPIC_API_KEY=...  or  DEMO_MODE=1
 
 uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Open [http://localhost:8000](http://localhost:8000). Frontend is served by FastAPI (no separate build step).
+Legacy vanilla frontend in `frontend/` is still served at `/` for smoke tests; Lovable is the product UI.
 
-Health check: `GET /api/health`  
-Analyze: `POST /api/analyze` with `{ "text": "..." }`
+## Deploy
 
-## Deploy (Render)
+`render.yaml` + `Procfile` for the FastAPI service. Set `ANTHROPIC_API_KEY` in the Render dashboard.
 
-`render.yaml` + `Procfile` are included. Set `ANTHROPIC_API_KEY` in the Render dashboard (`sync: false` in the Blueprint).
+## Lovable
 
-Blueprint deeplink (after this repo is on GitHub):
+- Editor / preview URLs are recorded when the Lovable project is created (see PR description).
+- Project knowledge encodes product constraints (safety, templates, design).
 
-```
-https://dashboard.render.com/blueprint/new?repo=<YOUR_HTTPS_REPO_URL>
-```
+## What's next / out of scope
 
-**Live demo URL:** _(fill in after Render deploy)_
-
-## What's next / out of scope for this submission
-
-- Expanded framework library beyond the two templates
-- Persistent history / multi-user accounts
-- Native mobile app
-- Drag-to-reposition on the diagram
+- Auth / multi-user accounts
+- Persistent server-side history
+- Unlimited open-ended framework invention
+- Native mobile
 
 ## License
 
