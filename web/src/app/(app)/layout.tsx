@@ -16,7 +16,7 @@ export default async function AppLayout({
   return (
     <>
       <SiteHeader authed email={user.email} />
-      <div className="mx-auto max-w-6xl px-5 pb-16 pt-4">{children}</div>
+      <div className="mx-auto max-w-7xl px-5 pb-16 pt-4">{children}</div>
     </>
   );
 }
