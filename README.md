@@ -1,111 +1,94 @@
-[![Built With Stencil](https://img.shields.io/badge/-Built%20With%20Stencil-16161d.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjIuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTIgNTEyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI%2BCjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI%2BCgkuc3Qwe2ZpbGw6I0ZGRkZGRjt9Cjwvc3R5bGU%2BCjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik00MjQuNywzNzMuOWMwLDM3LjYtNTUuMSw2OC42LTkyLjcsNjguNkgxODAuNGMtMzcuOSwwLTkyLjctMzAuNy05Mi43LTY4LjZ2LTMuNmgzMzYuOVYzNzMuOXoiLz4KPHBhdGggY2xhc3M9InN0MCIgZD0iTTQyNC43LDI5Mi4xSDE4MC40Yy0zNy42LDAtOTIuNy0zMS05Mi43LTY4LjZ2LTMuNkgzMzJjMzcuNiwwLDkyLjcsMzEsOTIuNyw2OC42VjI5Mi4xeiIvPgo8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNDI0LjcsMTQxLjdIODcuN3YtMy42YzAtMzcuNiw1NC44LTY4LjYsOTIuNy02OC42SDMzMmMzNy45LDAsOTIuNywzMC43LDkyLjcsNjguNlYxNDEuN3oiLz4KPC9zdmc%2BCg%3D%3D&colorA=16161d&style=flat-square)](https://stenciljs.com)
+# Pattern Mirror
 
-# Stencil Component Starter
+Paste your journal entries → an AI pipeline maps them onto an evidence-based psychological framework as an editable visual diagram, annotated with your own words, plus one tailored journaling exercise — instead of another wall of AI-generated markdown you'll never search again.
 
-> This is a starter project for building a standalone Web Components using Stencil.
+## The demo moment
 
-Stencil is a compiler for building fast web apps using Web Components.
+Paste 3–4 real journal entries → within seconds see them plotted on a personalized **quadrant** or **triangle** diagram, annotated with your own phrases → get one tailored, editable journaling exercise below it. That's the product.
 
-Stencil combines the best concepts of the most popular frontend frameworks into a compile-time rather than runtime tool. Stencil takes TypeScript, JSX, a tiny virtual DOM layer, efficient one-way data binding, an asynchronous rendering pipeline (similar to React Fiber), and lazy-loading out of the box, and generates 100% standards-based Web Components that run in any browser supporting the Custom Elements specification.
+This is **not a mood tracker**. It does not ask you to rate your day 1–5. It maps relationships between patterns in what you already wrote through an established framework template.
 
-Stencil components are just Web Components, so they work in any major framework or with no framework at all.
+## Architecture
 
-## Getting Started
+A 4-stage structured Claude pipeline (tool-use / schema-validated — not one freeform prompt):
 
-To start building a new web component using Stencil, clone this repo to a new directory:
+```
+raw journal text
+       │
+       ▼
+┌─────────────┐
+│ 1 Extractor │  → 3–6 claims + verbatim quotes
+└──────┬──────┘
+       ▼
+┌──────────────────┐
+│ 2 Framework Match│  → quadrant XOR triangle + generated labels
+└──────┬───────────┘
+       ▼
+┌──────────────────┐
+│ 3 Position Gen   │  → x/y or vertex weights + quote annotations
+└──────┬───────────┘
+       ▼
+┌──────────────────┐
+│ 4 Exercise Rec.  │  → one pre-written exercise, pre-filled
+└──────────────────┘
+```
+
+Exactly **two** framework templates (the AI fills labels, not invents geometry):
+
+1. **Quadrant** — 2-axis / 4-region map (CBT thought-record / cognitive mapping lineage)
+2. **Triangle** — 3-vertex self-inquiry map (reflective multi-perspective practice)
+
+## Safety & Responsible AI
+
+Judges: this section is load-bearing for the Responsible AI framing.
+
+| Guardrail | Behavior |
+|---|---|
+| **System prompt scope** | Psychoeducational only — never diagnostic, never clinical/medical advice, never claims certainty about mental state |
+| **Crisis-language short-circuit** | Lightweight check runs **before** the pipeline. If flagged, the framework stages never run; the UI shows resources only (no diagram, no exercise) |
+| **Ephemeral processing** | No persistent server-side storage of raw entries — request in, response out |
+| **Cited frameworks** | Templates cite established sources (e.g. CBT thought-record structures). Sources are shown in-app near the diagram |
+| **Visible disclaimer** | Banner: *This is a psychoeducational reflection tool, not a diagnostic or therapeutic service.* |
+
+Crisis resource links include a **TODO** placeholder for verified, region-appropriate hotlines — fill these before a public demo; do not invent numbers.
+
+## How to run locally
 
 ```bash
-git clone https://github.com/stenciljs/component-starter.git my-component
-cd my-component
-git remote rm origin
+python -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
+cp backend/.env.example backend/.env
+# Set ANTHROPIC_API_KEY=... in backend/.env
+# Or set DEMO_MODE=1 for a deterministic sample without calling Claude
+
+uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-and run:
+Open [http://localhost:8000](http://localhost:8000). Frontend is served by FastAPI (no separate build step).
 
-```bash
-npm install
-npm start
+Health check: `GET /api/health`  
+Analyze: `POST /api/analyze` with `{ "text": "..." }`
+
+## Deploy (Render)
+
+`render.yaml` + `Procfile` are included. Set `ANTHROPIC_API_KEY` in the Render dashboard (`sync: false` in the Blueprint).
+
+Blueprint deeplink (after this repo is on GitHub):
+
+```
+https://dashboard.render.com/blueprint/new?repo=<YOUR_HTTPS_REPO_URL>
 ```
 
-To build the component for production, run:
+**Live demo URL:** _(fill in after Render deploy)_
 
-```bash
-npm run build
-```
+## What's next / out of scope for this submission
 
-To run the unit tests for the components, run:
+- Expanded framework library beyond the two templates
+- Persistent history / multi-user accounts
+- Native mobile app
+- Drag-to-reposition on the diagram
 
-```bash
-npm test
-```
+## License
 
-Need help? Check out our docs [here](https://stenciljs.com/docs/my-first-component).
-
-## Naming Components
-
-When creating new component tags, we recommend _not_ using `stencil` in the component name (ex: `<stencil-datepicker>`). This is because the generated component has little to nothing to do with Stencil; it's just a web component!
-
-Instead, use a prefix that fits your company or any name for a group of related components. For example, all of the [Ionic-generated](https://ionicframework.com/) web components use the prefix `ion`.
-
-## Using this component
-
-There are two strategies we recommend for using web components built with Stencil.
-
-The first step for all two of these strategies is to [publish to NPM](https://docs.npmjs.com/getting-started/publishing-npm-packages).
-
-You can read more about these different approaches in the [Stencil docs](https://stenciljs.com/docs/publishing).
-
-### Lazy Loading
-
-If your Stencil project is built with the [`dist`](https://stenciljs.com/docs/distribution) output target, you can import a small bootstrap script that registers all components and allows you to load individual component scripts lazily.
-
-For example, given your Stencil project namespace is called `my-design-system`, to use `my-component` on any website, inject this into your HTML:
-
-```html
-<script type="module" src="https://unpkg.com/my-design-system"></script>
-<!--
-To avoid unpkg.com redirects to the actual file, you can also directly import:
-https://unpkg.com/foobar-design-system@0.0.1/dist/foobar-design-system/foobar-design-system.esm.js
--->
-<my-component first="Stencil" middle="'Don't call me a framework'" last="JS"></my-component>
-```
-
-This will only load the necessary scripts needed to render `<my-component />`. Once more components of this package are used, they will automatically be loaded lazily.
-
-You can also import the script as part of your `node_modules` in your applications entry file:
-
-```tsx
-import 'foobar-design-system/dist/foobar-design-system/foobar-design-system.esm.js';
-```
-
-Check out this [Live Demo](https://stackblitz.com/edit/vitejs-vite-y6v26a?file=src%2Fmain.tsx).
-
-### Standalone
-
-If you are using a Stencil component library with `dist-custom-elements`, we recommend importing Stencil components individually in those files where they are needed.
-
-To export Stencil components as standalone components make sure you have the [`dist-custom-elements`](https://stenciljs.com/docs/custom-elements) output target defined in your `stencil.config.ts`.
-
-For example, given you'd like to use `<my-component />` as part of a React component, you can import the component directly via:
-
-```tsx
-import 'foobar-design-system/my-component';
-
-function App() {
-  return (
-    <>
-      <div>
-        <my-component
-          first="Stencil"
-          middle="'Don't call me a framework'"
-          last="JS"
-        ></my-component>
-      </div>
-    </>
-  );
-}
-
-export default App;
-```
-
-Check out this [Live Demo](https://stackblitz.com/edit/vitejs-vite-b6zuds?file=src%2FApp.tsx).
+MIT
