@@ -72,9 +72,13 @@ Open [http://localhost:3000](http://localhost:3000). Journal is an agent chat at
 
 ## Deploy notes
 
-- **API:** Render (`render.yaml`) — set `ANTHROPIC_API_KEY` (pipeline)  
-- **Web:** Vercel/Netlify — set Supabase + `NEXT_PUBLIC_ANALYZE_API_URL` + optional `ANTHROPIC_API_KEY` (agent chat)  
-- Add the web origin to API CORS if locked down
+- **API (Render):** `stencil-api` → https://stencil-api.onrender.com  
+  - Dashboard: https://dashboard.render.com/web/srv-dad5lsm7bikc739pj2v0  
+  - Branch: `cursor/stencil-agent-9de5` (auto-deploy). Demo mode enabled (`DEMO_MODE=1`).
+- **Web (Vercel):** root directory `web/`  
+  - Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_ANALYZE_API_URL=https://stencil-api.onrender.com`, optional `ANTHROPIC_API_KEY`  
+  - After deploy, add the Vercel URL to Supabase Auth → URL configuration (Site URL + Redirect URLs: `https://<host>/auth/callback`)  
+- Free Render services cold-start; first analyze after idle may take ~30–60s.
 
 ## Lovable
 
