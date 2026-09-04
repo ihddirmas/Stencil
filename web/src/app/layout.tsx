@@ -3,9 +3,9 @@ import "./globals.css";
 import { Disclaimer } from "@/components/SiteChrome";
 
 export const metadata: Metadata = {
-  title: "Stencil — diary entries into evidence-based templates",
+  title: "Stencil — evidence-based journaling agent for mental health",
   description:
-    "Paste journal entries. Stencil maps them onto evolving, editable frameworks annotated with your own words.",
+    "Crisis-gated agent that turns diary entries into cited visual worksheets (CBT, identity, forgiveness) with memory, PII minimization, and output verification.",
 };
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: pattern-mirror
+    name: stencil-api
     runtime: python
     plan: free
     buildCommand: pip install -r backend/requirements.txt
@@ -9,8 +9,13 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: DEMO_MODE
-        value: "0"
+        value: "1"
       - key: PYTHON_VERSION
         value: "3.12.3"
       - key: ALLOW_DEMO_FALLBACK
-        value: "0"
+        value: "1"
+      - key: CORS_ORIGINS
+        value: "*"
+
+# Render Workflows are created in the Dashboard (Blueprint support pending).
+# See workflows/README.md — root task: orchestrate_stencil

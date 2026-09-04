@@ -66,7 +66,11 @@ export function Disclaimer() {
       role="note"
       className="bg-[var(--ink)] px-4 py-2 text-center text-[13px] text-[#e8f0eb]"
     >
-      This is a psychoeducational reflection tool, not a diagnostic or therapeutic service.
+      Psychoeducational reflection tool — not diagnosis or therapy. US crisis support: call/text{" "}
+      <a className="font-semibold underline" href="https://988lifeline.org/">
+        988
+      </a>
+      .
     </div>
   );
 }

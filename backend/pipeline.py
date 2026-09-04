@@ -20,7 +20,9 @@ from backend.frameworks import (
     FrameworkResult,
     StencilResult,
 )
+from backend.privacy import redact_pii
 from backend.safety import SYSTEM_PROMPT_CONSTRAINT
+from backend.verify import verify_stencil_output
 
 MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
 
@@ -643,21 +645,100 @@ def _demo_pipeline(raw_text: str) -> dict:
 
 # --- Orchestrator -------------------------------------------------------------
 
+def _attach_trace(result: dict, stages: list[dict], pii_events: list[dict], verification: dict) -> dict:
+    result = dict(result)
+    result["pipeline_trace"] = {
+        "stages": stages,
+        "pii_redactions": pii_events,
+        "verification": verification,
+        "orchestration": "extractor→matcher→position→exercise→verify",
+    }
+    result["safety"] = {
+        "psychoeducational_only": True,
+        "crisis_gated": True,
+        "pii_minimized": True,
+        "output_verified": bool(verification.get("ok")),
+    }
+    return result
+
+
 async def run_pipeline(raw_text: str) -> dict:
-    """Run Extractor → Matcher → Position → Exercise; return JSON-ready dict."""
-    if os.getenv("DEMO_MODE", "").strip() in {"1", "true", "True", "yes"}:
-        return _demo_pipeline(raw_text)
+    """Run privacy → Extractor → Matcher → Position → Exercise → Verify."""
+    sanitized, pii_events = redact_pii(raw_text)
+    stages: list[dict] = [
+        {
+            "id": "privacy",
+            "label": "PII minimization",
+            "status": "done",
+            "detail": f"{sum(e['count'] for e in pii_events)} field(s) redacted before model calls"
+            if pii_events
+            else "No PII patterns detected",
+        }
+    ]
+
+    demo = os.getenv("DEMO_MODE", "").strip() in {"1", "true", "True", "yes"}
+    if not os.getenv("ANTHROPIC_API_KEY") and os.getenv("ALLOW_DEMO_FALLBACK", "1") == "1":
+        demo = True
+
+    if demo:
+        stages += [
+            {"id": "extract", "label": "Extract claims", "status": "done", "detail": "Demo deterministic extractor"},
+            {"id": "match", "label": "Match template", "status": "done", "detail": "Heuristic framework matcher"},
+            {"id": "position", "label": "Position / worksheet", "status": "done", "detail": "Quote-annotated fields"},
+            {"id": "exercise", "label": "Exercise", "status": "done", "detail": "Editable bite-sized worksheet"},
+        ]
+        result = _demo_pipeline(sanitized)
+        verification = verify_stencil_output(result)
+        stages.append(
+            {
+                "id": "verify",
+                "label": "Output verification",
+                "status": "done",
+                "detail": "Citation + diagnostic-language scan",
+            }
+        )
+        return _attach_trace(result, stages, pii_events, verification)
 
     if not os.getenv("ANTHROPIC_API_KEY"):
-        if os.getenv("ALLOW_DEMO_FALLBACK", "1") == "1":
-            return _demo_pipeline(raw_text)
         raise RuntimeError("ANTHROPIC_API_KEY is required")
 
     client = _client()
-    claims = stage_extract(client, raw_text)
+    claims = stage_extract(client, sanitized)
+    stages.append(
+        {
+            "id": "extract",
+            "label": "Extract claims",
+            "status": "done",
+            "detail": f"{len(claims)} quote-grounded claims",
+        }
+    )
     match = stage_match_framework(client, claims)
+    stages.append(
+        {
+            "id": "match",
+            "label": "Match template",
+            "status": "done",
+            "detail": f"{match['template_type']}: {match.get('why', '')[:120]}",
+        }
+    )
     generated = stage_generate_position(client, claims, match)
+    stages.append(
+        {
+            "id": "position",
+            "label": "Position / worksheet",
+            "status": "done",
+            "detail": "Placed on framework with user quotes",
+        }
+    )
     exercise = stage_recommend_exercise(match, generated, claims)
+    stages.append(
+        {
+            "id": "exercise",
+            "label": "Exercise",
+            "status": "done",
+            "detail": exercise.get("title") or "Worksheet ready",
+        }
+    )
 
     title_map = {
         "quadrant": "Consciousness × Agency",
@@ -675,5 +756,15 @@ async def run_pipeline(raw_text: str) -> dict:
         worksheet=generated.get("worksheet") or exercise.get("fields") or {},
         exercise=exercise,
         claims=claims,
+    ).model_dump()
+
+    verification = verify_stencil_output(result)
+    stages.append(
+        {
+            "id": "verify",
+            "label": "Output verification",
+            "status": "done" if verification.get("ok") else "flagged",
+            "detail": ", ".join(verification.get("issues") or ["passed"])[:160],
+        }
     )
-    return result.model_dump()
+    return _attach_trace(result, stages, pii_events, verification)

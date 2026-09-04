@@ -1,11 +1,11 @@
-"""Safety constraints and crisis-language short-circuit for Pattern Mirror."""
+"""Safety constraints and crisis-language short-circuit for Stencil."""
 
 from __future__ import annotations
 
 import re
 
 SYSTEM_PROMPT_CONSTRAINT = """
-You are assisting Pattern Mirror, a psychoeducational reflection tool.
+You are assisting Stencil, a psychoeducational reflection tool for mental-health journaling.
 
 Hard scope constraints (never violate):
 - Psychoeducational only — help the user notice patterns in THEIR OWN words.
@@ -16,6 +16,7 @@ Hard scope constraints (never violate):
   framework template. Do not invent unsupported pop-psychology claims.
 - Do not encourage self-harm, isolation, or harmful coping. If content seems crisis-related,
   you would not be reached — crisis routing happens before you run.
+- Prefer the user's verbatim quotes over paraphrases that invent feelings they did not write.
 """.strip()
 
 
@@ -39,6 +40,8 @@ _CRISIS_PATTERNS: list[re.Pattern[str]] = [
         r"\bplan(?:ning)?\s+to\s+(?:die|kill)\b",
         r"\bdon'?t\s+want\s+to\s+be\s+alive\b",
         r"\bcan'?t\s+go\s+on\b",
+        r"\boverdose\b",
+        r"\bjump\s+off\b",
     ]
 ]
 
@@ -53,26 +56,28 @@ def check_crisis_language(text: str) -> bool:
 
 def crisis_resources() -> list[dict[str, str]]:
     """
-    Crisis resources shown when the short-circuit fires.
-
-    TODO (before demo): replace / extend with current, region-appropriate verified
-    resources. Do not invent hotline numbers.
+    Verified, publicly documented crisis resources (US-primary + international finder).
+    Numbers/URLs are from official public sites (988 / IASP) — do not invent hotlines.
     """
     return [
         {
-            "name": "Find a local crisis resource",
-            "detail": (
-                "TODO: fill with verified region-appropriate hotline / chat resources "
-                "before the public demo."
-            ),
+            "name": "988 Suicide & Crisis Lifeline (US)",
+            "detail": "Call or text 988 — 24/7 free and confidential support.",
+            "url": "https://988lifeline.org/",
+        },
+        {
+            "name": "Crisis Text Line (US)",
+            "detail": "Text HOME to 741741 to reach a trained volunteer.",
+            "url": "https://www.crisistextline.org/",
+        },
+        {
+            "name": "International Association for Suicide Prevention",
+            "detail": "Find local resources outside the US.",
             "url": "https://www.iasp.info/suicidalthoughts/",
         },
         {
-            "name": "Talk to someone you trust",
-            "detail": (
-                "Reach out to a friend, family member, or local emergency services "
-                "if you feel unsafe right now."
-            ),
+            "name": "Emergency services",
+            "detail": "If you are in immediate danger, call your local emergency number.",
             "url": "",
         },
     ]

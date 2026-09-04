@@ -5,6 +5,7 @@ import { DefaultChatTransport, isToolUIPart } from "ai";
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
 import { StencilView } from "@/components/StencilView";
+import { PipelineTrace } from "@/components/PipelineTrace";
 import type { AnalyzeSuccess, CrisisResponse } from "@/lib/types";
 
 const PLACEHOLDER = `Tue — Another week where I said yes to everything. I take on the fixing so nobody is disappointed.
@@ -78,9 +79,30 @@ function ApplyStencilResult({ output }: { output: unknown }) {
   }
 
   if (data.result) {
+    const result = data.result as AnalyzeSuccess;
     return (
       <div className="mt-3">
-        <StencilView result={data.result as AnalyzeSuccess} />
+        <PipelineTrace
+          stages={result.pipeline_trace?.stages}
+          orchestration={result.pipeline_trace?.orchestration}
+          verification={result.pipeline_trace?.verification}
+        />
+        <div className="mt-3">
+          <StencilView result={result} />
+        </div>
+        {result.safety ? (
+          <p className="mt-2 text-xs text-[var(--ink-soft)]" role="status">
+            Safety:{" "}
+            {[
+              result.safety.crisis_gated ? "crisis-gated" : null,
+              result.safety.pii_minimized ? "PII-minimized" : null,
+              result.safety.output_verified ? "output-verified" : null,
+              result.safety.render_workflows ? "Render Workflows" : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        ) : null}
         <p className="mt-2 text-sm text-[var(--ink-soft)]">
           Saved to{" "}
           <Link href="/entries" className="font-semibold text-[var(--leaf)]">

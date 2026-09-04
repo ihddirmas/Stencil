@@ -30,6 +30,22 @@ export type AnalyzeSuccess = {
     fields?: Record<string, unknown>;
   } | null;
   claims?: { claim: string; quote: string }[];
+  pipeline_trace?: {
+    stages?: { id: string; label: string; status?: string; detail?: string }[];
+    orchestration?: string;
+    verification?: {
+      ok?: boolean;
+      explainability?: { why_safe?: string; citation?: string };
+    };
+    pii_redactions?: { type: string; count: number }[];
+  };
+  safety?: {
+    psychoeducational_only?: boolean;
+    crisis_gated?: boolean;
+    pii_minimized?: boolean;
+    output_verified?: boolean;
+    render_workflows?: boolean;
+  };
 };
 
 export type CrisisResponse = {

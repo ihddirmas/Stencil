@@ -11,8 +11,9 @@
   --paper: #f7faf7;
   --leaf: #2f6b4f;
   --leaf-deep: #1e4a36;
-  --sand: #f3ebe0;
-  --accent: #c45c26;
+  --sand: #eef3f0;
+  --teal: #2a7a6e;
+  --accent: #2a7a6e;
   --line: rgba(26, 42, 36, 0.14);
   --danger: #8b2e2e;
   --danger-bg: #f8ecec;
@@ -24,7 +25,7 @@ body {
   color: var(--ink);
   background:
     radial-gradient(1200px 600px at 10% -10%, #d9ebe0 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #efe6d8 0%, transparent 50%),
+    radial-gradient(900px 500px at 100% 0%, #dce8e6 0%, transparent 50%),
     linear-gradient(180deg, #f4f8f5 0%, var(--paper) 45%, #eef4f0 100%);
   font-family: var(--font-body);
   min-height: 100vh;
@@ -34,6 +35,11 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
+}
+
+:focus-visible {
+  outline: 2px solid var(--leaf);
+  outline-offset: 2px;
 }
 
 @keyframes rise {
@@ -49,4 +55,10 @@ h3 {
 
 .animate-rise {
   animation: rise 0.65s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise {
+    animation: none;
+  }
 }

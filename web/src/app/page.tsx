@@ -12,64 +12,184 @@ export default async function LandingPage() {
 
   return (
     <>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-[var(--leaf)] focus:px-3 focus:py-2 focus:text-white"
+      >
+        Skip to content
+      </a>
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-5 pb-20 pt-8">
-        <section className="animate-rise mx-auto max-w-3xl">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-[var(--leaf)]">
-            A journaling agent with tools
-          </p>
-          <h1 className="text-5xl font-bold tracking-tight text-[var(--leaf-deep)] sm:text-6xl">
-            Stencil
-          </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-[var(--ink-soft)]">
-            Chat with an agent that turns diary entries into evidence-based visual frameworks —
-            then remembers patterns, searches your history, and grows a memory profile. Not another
-            wall of AI markdown.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/signup"
-              className="rounded-xl bg-[var(--leaf)] px-5 py-3 text-sm font-bold text-white shadow-md"
-            >
-              Create account
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-xl border border-[var(--line)] bg-white/80 px-5 py-3 text-sm font-bold text-[var(--ink)]"
-            >
-              Log in
-            </Link>
+      <main id="main" className="mx-auto max-w-6xl px-5 pb-24 pt-6">
+        <section className="animate-rise relative overflow-hidden rounded-[2rem] border border-[var(--line)] bg-gradient-to-br from-[#e7f2ea] via-[#f7faf7] to-[#e8eef2] px-6 py-12 sm:px-10 sm:py-16">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-40"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 20% 20%, rgba(47,107,79,0.18), transparent 40%), radial-gradient(circle at 80% 0%, rgba(42,122,110,0.16), transparent 35%)",
+            }}
+          />
+          <div className="relative max-w-2xl">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-[var(--leaf)]">
+              Mental health · psychoeducational agent
+            </p>
+            <h1 className="text-5xl font-bold tracking-tight text-[var(--leaf-deep)] sm:text-6xl">
+              Stencil
+            </h1>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-[var(--ink-soft)]">
+              AI journaling leaves people with unsearchable markdown walls. Stencil is an agent that
+              turns diary entries into{" "}
+              <strong className="font-semibold text-[var(--ink)]">
+                evidence-based visual worksheets
+              </strong>{" "}
+              — CBT distortions, identity maps, forgiveness prompts — annotated with your own words,
+              saved to memory, crisis-gated by design.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/signup"
+                className="rounded-xl bg-[var(--leaf)] px-5 py-3 text-sm font-bold text-white shadow-md transition hover:bg-[var(--leaf-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--leaf)]"
+              >
+                Start journaling
+              </Link>
+              <Link
+                href="/login"
+                className="rounded-xl border border-[var(--line)] bg-white/80 px-5 py-3 text-sm font-bold text-[var(--ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--leaf)]"
+              >
+                Log in
+              </Link>
+              <a
+                href="#safety"
+                className="rounded-xl px-5 py-3 text-sm font-semibold text-[var(--leaf-deep)] underline-offset-4 hover:underline"
+              >
+                Safety model →
+              </a>
+            </div>
           </div>
         </section>
 
-        <section className="animate-rise mt-16 grid gap-6 sm:grid-cols-3">
-          {[
-            {
-              t: "Chat",
-              d: "Talk to the agent — paste diary text, ask what it remembers, or search past entries.",
-            },
-            {
-              t: "Stencil",
-              d: "It calls tools to match a cited framework: quadrant maps, identity worksheets, CBT distortions, forgiveness prompts.",
-            },
-            {
-              t: "Remember",
-              d: "Entries, stencils, and memory notes persist. The agent reads your profile on later turns.",
-            },
-          ].map((card) => (
-            <div
-              key={card.t}
-              className="rounded-2xl border border-[var(--line)] bg-white/70 p-5 shadow-sm"
-            >
-              <h2 className="text-xl font-semibold text-[var(--leaf-deep)]">{card.t}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--ink-soft)]">{card.d}</p>
-            </div>
-          ))}
+        <section className="animate-rise mt-16" aria-labelledby="problem-heading">
+          <h2 id="problem-heading" className="text-3xl font-bold text-[var(--leaf-deep)]">
+            The mental-health gap we solve
+          </h2>
+          <p className="mt-3 max-w-3xl text-[var(--ink-soft)]">
+            People in distress already journal. Chatbots dump paragraphs. Mood trackers ask for
+            1–5 scores. Neither builds{" "}
+            <em>pattern literacy</em> with tools clinicians already teach — thought records,
+            identity work, self-compassion worksheets — in a form you can revisit.
+          </p>
         </section>
 
-        <p className="mt-14 max-w-2xl text-sm text-[var(--ink-soft)]">
-          Psychoeducational only — never diagnostic. Crisis language skips templates and
-          surfaces resources instead. Frameworks cite established sources.
+        <section className="animate-rise mt-14" aria-labelledby="how-heading">
+          <h2 id="how-heading" className="text-3xl font-bold text-[var(--leaf-deep)]">
+            How the agent works
+          </h2>
+          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                n: "01",
+                t: "Crisis gate",
+                d: "Heuristic short-circuit before any generative stage. Verified 988 / Crisis Text / IASP resources — never invented hotlines.",
+              },
+              {
+                n: "02",
+                t: "PII minimization",
+                d: "Emails, phones, and ID-like patterns redacted before model calls. Data minimization by default.",
+              },
+              {
+                n: "03",
+                t: "4-stage Claude pipeline",
+                d: "Extract claims → match cited template → position/worksheet → exercise. Structured tool use with schema retries.",
+              },
+              {
+                n: "04",
+                t: "Output verification",
+                d: "Citation allowlist, diagnostic-language scan, quote grounding. Soft-corrects unsafe citations.",
+              },
+              {
+                n: "05",
+                t: "Memory agent tools",
+                d: "ToolLoopAgent can apply_stencil, get_memory, search_entries — durable profile, not a one-shot chat.",
+              },
+              {
+                n: "06",
+                t: "Render Workflows",
+                d: "Optional durable orchestration: each stage is a retried Render Workflows task that scales to zero.",
+              },
+            ].map((step) => (
+              <li
+                key={step.n}
+                className="rounded-2xl border border-[var(--line)] bg-white/70 p-5 transition hover:-translate-y-0.5 hover:shadow-sm"
+              >
+                <p className="text-xs font-bold tracking-[0.14em] text-[var(--teal)]">{step.n}</p>
+                <h3 className="mt-1 text-xl font-semibold text-[var(--leaf-deep)]">{step.t}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--ink-soft)]">{step.d}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="animate-rise mt-16" aria-labelledby="frameworks-heading">
+          <h2 id="frameworks-heading" className="text-3xl font-bold text-[var(--leaf-deep)]">
+            Evidence-based templates
+          </h2>
+          <p className="mt-2 max-w-2xl text-[var(--ink-soft)]">
+            Not diagnoses — named frameworks with citations, filled with the writer’s own quotes.
+          </p>
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+            {[
+              "Consciousness × Agency quadrant maps",
+              "CBT cognitive distortions / thought records (Beck; Burns)",
+              "Identity shift: Who I Had to Be → Who I’m Becoming",
+              "Self-forgiveness worksheets",
+              "Conflict / drama-triangle style maps",
+            ].map((item) => (
+              <li
+                key={item}
+                className="flex gap-3 rounded-xl border border-[var(--line)] bg-white/60 px-4 py-3 text-sm"
+              >
+                <span aria-hidden className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--leaf)]" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section
+          id="safety"
+          className="animate-rise mt-16 rounded-[2rem] border border-[var(--line)] bg-[var(--leaf-deep)] px-6 py-10 text-[#e8f0eb] sm:px-10"
+          aria-labelledby="safety-heading"
+        >
+          <h2 id="safety-heading" className="text-3xl font-bold text-white">
+            Feasibility & safety, by design
+          </h2>
+          <ul className="mt-5 grid gap-4 text-sm leading-relaxed sm:grid-cols-2">
+            <li>
+              <strong className="text-white">Psychoeducational only</strong> — system prompts forbid
+              diagnosis, prescriptions, and clinical certainty.
+            </li>
+            <li>
+              <strong className="text-white">Crisis short-circuit</strong> — generative pipeline never
+              runs; verified US/international resources shown.
+            </li>
+            <li>
+              <strong className="text-white">Supabase RLS</strong> — users only read/write their own
+              entries, stencils, and memory notes.
+            </li>
+            <li>
+              <strong className="text-white">Explainable stages</strong> — every stencil shows the
+              pipeline trace and verification rationale in-product.
+            </li>
+          </ul>
+        </section>
+
+        <p className="mt-12 max-w-3xl text-sm text-[var(--ink-soft)]">
+          Built for Hack for Humanity · Mental Health track. Not a diagnostic or therapeutic
+          service. If you are in crisis, call or text 988 (US) or visit{" "}
+          <a className="font-semibold text-[var(--leaf)] underline" href="https://988lifeline.org/">
+            988lifeline.org
+          </a>
+          .
         </p>
       </main>
     </>
