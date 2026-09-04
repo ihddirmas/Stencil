@@ -36,6 +36,7 @@ function toolNameOf(part: { type: string; toolName?: string }) {
 function extractApplyOutput(output: unknown): {
   result?: AnalyzeSuccess;
   crisis?: CrisisResponse & { message: string };
+  stencilId?: string;
 } {
   if (!output || typeof output !== "object") return {};
   const data = output as Record<string, unknown>;
@@ -43,9 +44,11 @@ function extractApplyOutput(output: unknown): {
     return { crisis: data as CrisisResponse & { message: string } };
   }
   if (data.result && typeof data.result === "object") {
-    return { result: data.result as AnalyzeSuccess };
+    return {
+      result: data.result as AnalyzeSuccess,
+      stencilId: typeof data.stencil_id === "string" ? data.stencil_id : undefined,
+    };
   }
-  // Older / direct AnalyzeSuccess payloads
   if ("template_type" in data && "title" in data && data.crisis_flag === false) {
     return { result: data as AnalyzeSuccess };
   }
@@ -54,7 +57,7 @@ function extractApplyOutput(output: unknown): {
 
 function latestApplyFromMessages(
   messages: Array<{ role: string; parts?: unknown[] }>
-): { result?: AnalyzeSuccess; crisis?: CrisisResponse & { message: string } } {
+): { result?: AnalyzeSuccess; crisis?: CrisisResponse & { message: string }; stencilId?: string } {
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const message = messages[i];
     if (message.role !== "assistant" || !message.parts) continue;
@@ -135,6 +138,7 @@ export function AgentChat({ demoMode }: { demoMode?: boolean }) {
   const latest = latestApplyFromMessages(messages);
   const activeResult = latest.result;
   const activeCrisis = latest.crisis;
+  const activeStencilId = latest.stencilId;
 
   useEffect(() => {
     threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" });
@@ -182,10 +186,11 @@ export function AgentChat({ demoMode }: { demoMode?: boolean }) {
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--leaf)]">
             Journal agent
           </p>
-          <h1 className="mt-1 text-4xl font-bold text-[var(--leaf-deep)]">Map it visually</h1>
+          <h1 className="mt-1 text-4xl font-bold text-[var(--leaf-deep)]">Braindump → worksheet</h1>
           <p className="mt-2 text-[var(--ink-soft)]">
-            Write what happened. The agent pins a framework diagram here — CBT, identity,
-            forgiveness, or a conflict map — with citations. Chat stays secondary.
+            Dump the day in plain language. The agent fills a visual therapy worksheet for you —
+            CBT, identity, forgiveness, conflict maps — so you never start from a blank form.
+            Edit only if you want; saves update your memory profile.
           </p>
           {demoMode ? (
             <p className="mt-3 rounded-xl border border-[var(--line)] bg-white/70 px-3 py-2 text-xs text-[var(--ink-soft)]">
@@ -223,7 +228,7 @@ export function AgentChat({ demoMode }: { demoMode?: boolean }) {
 
             {activeResult ? (
               <>
-                <StencilView result={activeResult} compact />
+                <StencilView result={activeResult} compact stencilId={activeStencilId} />
                 <details className="rounded-xl border border-[var(--line)] bg-[var(--sand)]/50 p-3 text-sm">
                   <summary className="cursor-pointer font-semibold text-[var(--leaf-deep)]">
                     Pipeline & safety (collapsed)
@@ -317,8 +322,8 @@ export function AgentChat({ demoMode }: { demoMode?: boolean }) {
             {messages.length === 0 ? (
               <div className="space-y-4 py-4">
                 <p className="text-sm leading-relaxed text-[var(--ink-soft)]">
-                  Start with diary lines. The diagram on the left is the product — chat is how you
-                  get there.
+                  Paste today’s braindump. You should not fill blank CBT forms — the agent does,
+                  then pins the visual on the left. Chat is just how you dump.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {SUGGESTIONS.map((s) => (

@@ -2,11 +2,25 @@
 
 Mental Health track submission. Goal: score **5** across rubrics and compete for Best Mental Health Tool, Responsible AI, Best Use of Render Workflows, Best Use of AI/ML, Best Design, Best Innovation.
 
+Deep product thesis (vs Claude/GPT chat): [`docs/PRODUCT.md`](PRODUCT.md).
+
 ## Domain effectiveness (Mental Health)
 
-**Pain point:** People already journal under stress. Generic AI chats dump unsearchable markdown; mood trackers reduce experience to 1–5 scores. Neither builds pattern literacy with tools therapists already teach.
+**Pain point:** People already braindump under stress. Blank therapy worksheets get abandoned. Generic Claude/GPT chats dump unsearchable markdown and force the user to manually organize memory. Mood trackers reduce experience to 1–5 scores.
 
-**Solution:** An agent that converts diary text into **cited visual worksheets** (CBT distortions, identity shift, forgiveness, consciousness×agency maps), persists a **memory profile**, and stays psychoeducational — not diagnostic.
+**Solution:** Dump once → agent **fills** cited visual worksheets (CBT distortions, identity shift, forgiveness, consciousness×agency, conflict maps) → optional edit updates **profile memory**. Pattern literacy without homework.
+
+## Why this beats general chat (sell / win)
+
+| | ChatGPT / Claude chat | Stencil |
+|---|---|---|
+| Activation | Strong for dumping | Same dump, therapy-shaped output |
+| Worksheet | User must prompt + paste templates | Auto-filled stencil |
+| Sticky visual | Markdown essay | Diagram-first pane |
+| Memory | Freeform / manual | Structured `memory_notes` + Entries |
+| MH safety controls | Soft prompts | Crisis gate, PII, verification, RLS |
+
+**One-liner for judges:** Chat gives words. Stencil gives the worksheet you’d fill if you had the energy — and remembers it.
 
 ## Feasibility & safety
 
@@ -21,18 +35,18 @@ Mental Health track submission. Goal: score **5** across rubrics and compete for
 
 ## Innovation & novelty
 
-Not a mood tracker clone. The novel unit is the **stencil**: a visual, editable, quote-annotated template that evolves into a searchable library — orchestrated by a **tool-using agent** (not a single prompt).
+Not a mood tracker clone. The novel unit is the **stencil**: a visual, **pre-filled**, editable, quote-annotated template that evolves into a searchable library — orchestrated by a **tool-using agent** (not a single prompt). Edit → save refreshes memory from fields.
 
 ## Technical complexity (AI/ML)
 
 1. Privacy gate  
 2. Claude structured tool-use **Extractor**  
 3. **Template matcher** with citation  
-4. **Position / worksheet** generator  
+4. **Position / worksheet** generator (fills fields from journal)  
 5. Exercise assembly  
 6. **Verification layer**  
 7. Optional **Render Workflows** durable chain (`orchestrate_stencil` → subtasks with retries)  
-8. Frontend **ToolLoopAgent** with memory/search/apply tools  
+8. Frontend **ToolLoopAgent** with memory/search/apply tools + worksheet save API  
 
 ## Data safety & responsibility
 
@@ -44,7 +58,7 @@ Not a mood tracker clone. The novel unit is the **stencil**: a visual, editable,
 ## UI/UX & accessibility
 
 - Brand-first landing with skip link, focus-visible rings, `prefers-reduced-motion`  
-- Agent chat with tool chips, pipeline trace, crisis UI  
+- Dual-pane journal: **visual worksheet left**, dump chat right  
 - Semantic headings / ARIA labels on pipeline and safety sections  
 
 ## Best Use of Render Workflows
@@ -58,8 +72,9 @@ Web service `stencil-api` remains the synchronous demo path; Workflows add durab
 
 ## Demo script (2 minutes)
 
-1. Landing → Safety model (988)  
-2. Sign in → paste diary → tool `apply_stencil` → pipeline stages + visual worksheet  
-3. Ask “What do you remember?” → `get_memory`  
-4. Paste crisis language → short-circuit, no template  
-5. Mention Render Workflows + verification in Q&A  
+1. Landing → “braindump → filled worksheet” vs chat walls  
+2. Sign in → paste diary → tool `apply_stencil` → visual worksheet already filled  
+3. Tweak a field → Save to memory → show Memory page  
+4. Ask “What do you remember?” → `get_memory`  
+5. Paste crisis language → short-circuit, no template  
+6. Mention Render Workflows + verification in Q&A  

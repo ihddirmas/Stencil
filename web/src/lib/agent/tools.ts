@@ -186,12 +186,12 @@ export function createStencilTools(supabase: SupabaseClient, userId: string) {
 
     apply_stencil: tool({
       description:
-        "Analyze journal text with the Stencil pipeline, persist entry + stencil + memory notes, and return the visual framework payload. Use this when the user pastes diary entries or asks to stencil/map their writing.",
+        "Analyze a freeform braindump / diary text, auto-fill an evidence-based visual worksheet (stencil), persist entry + stencil + memory notes, and return the framework payload. Prefer this whenever the user pastes journal content — they should not fill blank therapy forms themselves.",
       inputSchema: z.object({
         journal_text: z
           .string()
           .min(1)
-          .describe("The diary / journal text to stencil"),
+          .describe("The diary / journal braindump to stencil"),
       }),
       execute: async ({ journal_text }) =>
         applyStencilToJournal(supabase, userId, journal_text),

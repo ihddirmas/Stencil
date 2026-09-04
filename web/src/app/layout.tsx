@@ -5,7 +5,7 @@ import { Disclaimer } from "@/components/SiteChrome";
 export const metadata: Metadata = {
   title: "Stencil — evidence-based journaling agent for mental health",
   description:
-    "Crisis-gated agent that turns diary entries into cited visual worksheets (CBT, identity, forgiveness) with memory, PII minimization, and output verification.",
+    "Braindump once — crisis-gated agent fills cited visual therapy worksheets (CBT, identity, forgiveness) and updates structured memory. Not a chat wall.",
 };
 
 export default function RootLayout({

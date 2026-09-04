@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { AnalyzeSuccess } from "@/lib/types";
 
 const FRAMEWORK_BLURBS: Record<string, string> = {
@@ -13,12 +14,47 @@ const FRAMEWORK_BLURBS: Record<string, string> = {
 export function StencilView({
   result,
   compact,
+  stencilId,
 }: {
   result: AnalyzeSuccess;
   compact?: boolean;
+  /** When set, worksheet edits can be saved back to profile memory. */
+  stencilId?: string | null;
 }) {
   const anns = result.annotations || result.framework?.annotations || [];
-  const ws = (result.worksheet || result.exercise?.fields || {}) as Record<string, unknown>;
+  const initialWs = (result.worksheet || result.exercise?.fields || {}) as Record<
+    string,
+    unknown
+  >;
+  const [ws, setWs] = useState(initialWs);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setWs((result.worksheet || result.exercise?.fields || {}) as Record<string, unknown>);
+    setSaveState("idle");
+    setSaveError(null);
+  }, [result, stencilId]);
+
+  async function saveWorksheet(next: Record<string, unknown>) {
+    setWs(next);
+    if (!stencilId) return;
+    setSaveState("saving");
+    setSaveError(null);
+    try {
+      const res = await fetch(`/api/stencils/${stencilId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ worksheet: next }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Save failed");
+      setSaveState("saved");
+    } catch (e) {
+      setSaveState("error");
+      setSaveError(e instanceof Error ? e.message : "Save failed");
+    }
+  }
 
   return (
     <div
@@ -26,7 +62,7 @@ export function StencilView({
     >
       <header>
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--teal)]">
-          Applied framework
+          Filled for you from your dump
         </p>
         <h3 className="mt-1 text-2xl font-semibold text-[var(--leaf-deep)] sm:text-3xl">
           {result.title}
@@ -75,9 +111,15 @@ export function StencilView({
         </div>
       ) : null}
 
-      {result.template_type === "identity_shift" ? <IdentityFields ws={ws} /> : null}
-      {result.template_type === "forgiveness" ? <ForgivenessFields ws={ws} /> : null}
-      {result.template_type === "cognitive_distortions" ? <DistortionFields ws={ws} /> : null}
+      {result.template_type === "identity_shift" ? (
+        <IdentityFields ws={ws} onChange={setWs} onSave={saveWorksheet} canSave={Boolean(stencilId)} saveState={saveState} saveError={saveError} />
+      ) : null}
+      {result.template_type === "forgiveness" ? (
+        <ForgivenessFields ws={ws} onChange={setWs} onSave={saveWorksheet} canSave={Boolean(stencilId)} saveState={saveState} saveError={saveError} />
+      ) : null}
+      {result.template_type === "cognitive_distortions" ? (
+        <DistortionFields ws={ws} onChange={setWs} onSave={saveWorksheet} canSave={Boolean(stencilId)} saveState={saveState} saveError={saveError} />
+      ) : null}
 
       {(result.template_type === "quadrant" || result.template_type === "triangle") &&
       result.exercise?.html_template ? (
@@ -485,39 +527,112 @@ function ForgivenessVisual({ ws }: { ws: Record<string, unknown> }) {
   );
 }
 
-function IdentityFields({ ws }: { ws: Record<string, unknown> }) {
+type FieldSaveProps = {
+  ws: Record<string, unknown>;
+  onChange: (ws: Record<string, unknown>) => void;
+  onSave: (ws: Record<string, unknown>) => void | Promise<void>;
+  canSave: boolean;
+  saveState: "idle" | "saving" | "saved" | "error";
+  saveError: string | null;
+};
+
+function SaveBar({
+  canSave,
+  saveState,
+  saveError,
+  onSave,
+  ws,
+}: Pick<FieldSaveProps, "canSave" | "saveState" | "saveError" | "onSave" | "ws">) {
+  if (!canSave) {
+    return (
+      <p className="text-xs text-[var(--ink-soft)]">
+        Edits stay local until this stencil is saved from the agent.
+      </p>
+    );
+  }
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <Field label="I had to" value={String(ws.had_to_line_a || "")} />
-      <Field label="so I wouldn't feel" value={String(ws.had_to_line_b || "")} />
-      <Field label="Now I choose to" value={String(ws.becoming_line_a || "")} />
-      <Field label="because I deserve" value={String(ws.becoming_line_b || "")} />
-      <Field label="Letting go" value={String(ws.letting_go || "")} wide />
-      <Field label="Reclaiming" value={String(ws.reclaiming || "")} wide />
-      <Field label="Anchor" value={String(ws.anchor || "")} wide />
+    <div className="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        disabled={saveState === "saving"}
+        onClick={() => void onSave(ws)}
+        className="rounded-xl bg-[var(--leaf)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+      >
+        {saveState === "saving" ? "Saving…" : "Save to memory"}
+      </button>
+      {saveState === "saved" ? (
+        <span className="text-xs font-semibold text-[var(--leaf)]">
+          Profile memory updated
+        </span>
+      ) : null}
+      {saveState === "error" && saveError ? (
+        <span className="text-xs text-[var(--danger)]">{saveError}</span>
+      ) : null}
+      <span className="text-xs text-[var(--ink-soft)]">
+        Optional — agent already filled this from your dump.
+      </span>
     </div>
   );
 }
 
-function ForgivenessFields({ ws }: { ws: Record<string, unknown> }) {
+function IdentityFields({ ws, onChange, onSave, canSave, saveState, saveError }: FieldSaveProps) {
+  function set(key: string, value: string) {
+    onChange({ ...ws, [key]: value });
+  }
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <Field label="Mistake" value={String(ws.mistake || "")} />
-      <Field label="Emotions" value={String(ws.emotions || "")} />
-      <Field label="Compassion" value={String(ws.compassion || "")} wide />
-      <Field label="Affirmations" value={String(ws.affirmations || "")} />
-      <Field label="Visualization" value={String(ws.visualization || "")} />
+    <div className="space-y-3 rounded-xl border border-[var(--line)] bg-white/70 p-3">
+      <p className="text-sm font-semibold text-[var(--leaf-deep)]">
+        Worksheet (pre-filled — edit only if you want)
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="I had to" value={String(ws.had_to_line_a || "")} onChange={(v) => set("had_to_line_a", v)} />
+        <Field label="so I wouldn't feel" value={String(ws.had_to_line_b || "")} onChange={(v) => set("had_to_line_b", v)} />
+        <Field label="Now I choose to" value={String(ws.becoming_line_a || "")} onChange={(v) => set("becoming_line_a", v)} />
+        <Field label="because I deserve" value={String(ws.becoming_line_b || "")} onChange={(v) => set("becoming_line_b", v)} />
+        <Field label="Letting go" value={String(ws.letting_go || "")} onChange={(v) => set("letting_go", v)} wide />
+        <Field label="Reclaiming" value={String(ws.reclaiming || "")} onChange={(v) => set("reclaiming", v)} wide />
+        <Field label="Anchor" value={String(ws.anchor || "")} onChange={(v) => set("anchor", v)} wide />
+      </div>
+      <SaveBar canSave={canSave} saveState={saveState} saveError={saveError} onSave={onSave} ws={ws} />
     </div>
   );
 }
 
-function DistortionFields({ ws }: { ws: Record<string, unknown> }) {
-  const rows = (ws.distortions as { name?: string; my_example?: string; my_challenge?: string }[]) || [];
+function ForgivenessFields({ ws, onChange, onSave, canSave, saveState, saveError }: FieldSaveProps) {
+  function set(key: string, value: string) {
+    onChange({ ...ws, [key]: value });
+  }
+  return (
+    <div className="space-y-3 rounded-xl border border-[var(--line)] bg-white/70 p-3">
+      <p className="text-sm font-semibold text-[var(--leaf-deep)]">
+        Worksheet (pre-filled — edit only if you want)
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="Mistake" value={String(ws.mistake || "")} onChange={(v) => set("mistake", v)} />
+        <Field label="Emotions" value={String(ws.emotions || "")} onChange={(v) => set("emotions", v)} />
+        <Field label="Compassion" value={String(ws.compassion || "")} onChange={(v) => set("compassion", v)} wide />
+        <Field label="Affirmations" value={String(ws.affirmations || "")} onChange={(v) => set("affirmations", v)} />
+        <Field label="Visualization" value={String(ws.visualization || "")} onChange={(v) => set("visualization", v)} />
+      </div>
+      <SaveBar canSave={canSave} saveState={saveState} saveError={saveError} onSave={onSave} ws={ws} />
+    </div>
+  );
+}
+
+function DistortionFields({ ws, onChange, onSave, canSave, saveState, saveError }: FieldSaveProps) {
+  const rows =
+    (ws.distortions as { name?: string; my_example?: string; my_challenge?: string }[]) || [];
   if (!rows.length) return null;
+
+  function patchRow(i: number, key: "my_example" | "my_challenge", value: string) {
+    const next = rows.map((r, idx) => (idx === i ? { ...r, [key]: value } : r));
+    onChange({ ...ws, distortions: next });
+  }
+
   return (
-    <details className="rounded-xl border border-[var(--line)] bg-white/70 p-3">
+    <details open className="rounded-xl border border-[var(--line)] bg-white/70 p-3">
       <summary className="cursor-pointer text-sm font-semibold text-[var(--leaf-deep)]">
-        Edit worksheet fields
+        Worksheet fields (pre-filled — tweak → save to memory)
       </summary>
       <div className="mt-3 space-y-3">
         {rows.map((r, i) => (
@@ -525,10 +640,19 @@ function DistortionFields({ ws }: { ws: Record<string, unknown> }) {
             <p className="text-xs font-bold uppercase tracking-wide text-[var(--ink-soft)]">
               {r.name}
             </p>
-            <Field label="My example" value={String(r.my_example || "")} />
-            <Field label="My challenge" value={String(r.my_challenge || "")} />
+            <Field
+              label="My example"
+              value={String(r.my_example || "")}
+              onChange={(v) => patchRow(i, "my_example", v)}
+            />
+            <Field
+              label="My challenge"
+              value={String(r.my_challenge || "")}
+              onChange={(v) => patchRow(i, "my_challenge", v)}
+            />
           </div>
         ))}
+        <SaveBar canSave={canSave} saveState={saveState} saveError={saveError} onSave={onSave} ws={ws} />
       </div>
     </details>
   );
@@ -537,17 +661,20 @@ function DistortionFields({ ws }: { ws: Record<string, unknown> }) {
 function Field({
   label,
   value,
+  onChange,
   wide,
 }: {
   label: string;
   value: string;
+  onChange?: (value: string) => void;
   wide?: boolean;
 }) {
   return (
     <label className={`grid gap-1 text-sm font-semibold ${wide ? "sm:col-span-2" : ""}`}>
       {label}
       <textarea
-        defaultValue={value}
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
         rows={3}
         className="rounded-lg border border-[var(--line)] bg-white p-2 font-normal"
       />

@@ -31,26 +31,26 @@ export default async function LandingPage() {
           />
           <div className="relative max-w-2xl">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-[var(--leaf)]">
-              Mental health · psychoeducational agent
+              Mental health · braindump → filled worksheets
             </p>
             <h1 className="text-5xl font-bold tracking-tight text-[var(--leaf-deep)] sm:text-6xl">
               Stencil
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-[var(--ink-soft)]">
-              AI journaling leaves people with unsearchable markdown walls. Stencil is an agent that
-              turns diary entries into{" "}
+              Generic Claude or GPT chats leave you with jumbled threads and DIY memory.
+              Stencil is the agent that turns a daily braindump into{" "}
               <strong className="font-semibold text-[var(--ink)]">
-                evidence-based visual worksheets
+                filled, visual therapy worksheets
               </strong>{" "}
-              — CBT distortions, identity maps, forgiveness prompts — annotated with your own words,
-              saved to memory, crisis-gated by design.
+              — CBT thought records, identity maps, forgiveness loops — so you never start from a
+              blank form. Edit if you want; that updates your profile memory. Crisis-gated by design.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/signup"
                 className="rounded-xl bg-[var(--leaf)] px-5 py-3 text-sm font-bold text-white shadow-md transition hover:bg-[var(--leaf-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--leaf)]"
               >
-                Start journaling
+                Start braindumping
               </Link>
               <Link
                 href="/login"
@@ -70,14 +70,39 @@ export default async function LandingPage() {
 
         <section className="animate-rise mt-16" aria-labelledby="problem-heading">
           <h2 id="problem-heading" className="text-3xl font-bold text-[var(--leaf-deep)]">
-            The mental-health gap we solve
+            Why not just use Claude or ChatGPT?
           </h2>
           <p className="mt-3 max-w-3xl text-[var(--ink-soft)]">
-            People in distress already journal. Chatbots dump paragraphs. Mood trackers ask for
-            1–5 scores. Neither builds{" "}
-            <em>pattern literacy</em> with tools clinicians already teach — thought records,
-            identity work, self-compassion worksheets — in a form you can revisit.
+            People in distress already dump feelings into chats. Those chats don’t leave a{" "}
+            <em>filled thought record</em>, a sticky visual, or a structured profile you can search
+            next week. Blank therapy homework gets abandoned. Stencil meets you at the braindump and
+            does the worksheet work — CBT, identity, self-compassion — with citations and memory
+            that compounds.
           </p>
+          <ul className="mt-6 grid gap-3 sm:grid-cols-3">
+            {[
+              {
+                t: "Dump once",
+                d: "Freeform diary. No blank forms to stare at.",
+              },
+              {
+                t: "Agent fills it",
+                d: "Named frameworks + fields from your quotes.",
+              },
+              {
+                t: "Memory sticks",
+                d: "Optional edits update your profile — not a chat scroll.",
+              },
+            ].map((item) => (
+              <li
+                key={item.t}
+                className="rounded-2xl border border-[var(--line)] bg-white/70 p-5"
+              >
+                <h3 className="text-lg font-semibold text-[var(--leaf-deep)]">{item.t}</h3>
+                <p className="mt-2 text-sm text-[var(--ink-soft)]">{item.d}</p>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="animate-rise mt-14" aria-labelledby="how-heading">

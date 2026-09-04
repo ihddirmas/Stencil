@@ -1,10 +1,18 @@
 # Stencil
 
-**Mental Health track** — a journaling **agent** that turns diary entries into evidence-based visual **stencils** (not mood scores, not AI markdown dumps), with crisis gating, PII minimization, output verification, durable memory, and optional **Render Workflows** orchestration.
+**Mental Health track** — braindump your day; an agent **fills** evidence-based visual therapy worksheets (stencils) for you — not mood scores, not AI markdown dumps — with crisis gating, PII minimization, output verification, durable memory, and optional **Render Workflows** orchestration.
 
-See [`docs/JUDGES.md`](docs/JUDGES.md) for rubric mapping.
+- Why this sells vs Claude/GPT: [`docs/PRODUCT.md`](docs/PRODUCT.md)  
+- Hackathon rubric map: [`docs/JUDGES.md`](docs/JUDGES.md)
 
-## Product flow
+## Product loop
+
+1. **Braindump** — freeform diary (once a day or whenever). No blank CBT forms.  
+2. **Agent fills the stencil** — cited visual worksheet + fields from your quotes.  
+3. **Glance / optional edit** — diagram sticks; tweaks **Save to memory**.  
+4. **Profile compounds** — Entries + Memory, searchable, not a chat scroll.
+
+## Product flow (app)
 
 1. **Landing** (`/`) — problem, pipeline, safety (988)  
 2. **Auth** — Supabase email/password + RLS  
@@ -23,9 +31,10 @@ See [`docs/JUDGES.md`](docs/JUDGES.md) for rubric mapping.
 
 | Path | Role |
 |---|---|
-| `web/` | Next.js agent UI + `/api/agent` |
+| `web/` | Next.js agent UI + `/api/agent` + worksheet save |
 | `backend/` | FastAPI analyze API (privacy→…→verify) |
 | `workflows/` | **Render Workflows** durable task chain |
+| `docs/PRODUCT.md` | Sell / win thesis vs general chat |
 | `docs/JUDGES.md` | Hackathon scoring map |
 | `frontend/` | Legacy vanilla SPA |
 

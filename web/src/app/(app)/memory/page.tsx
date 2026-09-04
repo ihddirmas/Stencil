@@ -53,8 +53,9 @@ export default async function MemoryPage() {
         {profile?.display_name || "Your"} memory
       </h1>
       <p className="mt-2 max-w-2xl text-[var(--ink-soft)]">
-        As you stencil entries, we accumulate a living profile — patterns, roles, distortions,
-        and framework landings — so your life reads as an applied framework, not a pile of files.
+        Each braindump that gets stenciled adds structured notes — patterns, roles, distortions,
+        landings. If you edit a worksheet and save, this profile updates. Your life reads as an
+        applied framework library, not a pile of chat threads.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
